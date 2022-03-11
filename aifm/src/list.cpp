@@ -21,7 +21,7 @@ GenericList::GenericList(const DerefScope &scope, const uint16_t kItemSize,
       kMergeThresh_(
           static_cast<uint16_t>(kNumNodesPerChunk_ * kMergeThreshRatio)),
       kPrefetchNumNodes_(
-          FarMemManagerFactory::get()->get_device()->get_prefetch_win_size() /
+          FarMemManagerFactory::get()->get_device_min_prefetch_win_size() /
           kChunkSize_),
       enable_merge_(enable_merge), customized_split_(customized_split) {
   local_list_.push_back(LocalNode());

@@ -92,7 +92,7 @@ private:
   void prefetch_slave_fn(uint32_t tid);
 
 public:
-  Prefetcher(FarMemDevice *device, uint8_t *state, uint32_t object_data_size);
+  Prefetcher(uint32_t prefetch_win_size, uint8_t *state, uint32_t object_data_size);
   ~Prefetcher();
   NOT_COPYABLE(Prefetcher);
   NOT_MOVEABLE(Prefetcher);

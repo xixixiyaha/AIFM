@@ -131,7 +131,7 @@ restart:
       }
     }
 
-    FarMemManagerFactory::get()->get_device()->write_object(
+    get_device()->write_object(
         obj.get_ds_id(), obj_id_len, obj_id_ptr, obj.get_data_len(),
         reinterpret_cast<const uint8_t *>(obj.get_data_addr()));
     if (!meta_snapshot.is_shared()) {

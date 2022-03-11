@@ -8,7 +8,7 @@ namespace far_memory {
 GenericArray::GenericArray(FarMemManager *manager, uint32_t item_size,
                            uint64_t num_items)
     : kNumItems_(num_items), kItemSize_(item_size),
-      prefetcher_(manager->get_device(), reinterpret_cast<uint8_t *>(&ptrs_),
+      prefetcher_(manager->get_device_min_prefetch_win_size(), reinterpret_cast<uint8_t *>(&ptrs_),
                   item_size) {
   preempt_disable();
   ptrs_.reset(new GenericUniquePtr[num_items]);

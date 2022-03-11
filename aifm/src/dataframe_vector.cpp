@@ -7,8 +7,9 @@ GenericDataFrameVector::GenericDataFrameVector(const uint32_t chunk_size,
                                                const uint32_t chunk_num_entries,
                                                uint8_t ds_id, uint8_t dt_id)
     : chunk_size_(chunk_size), chunk_num_entries_(chunk_num_entries),
-      device_(FarMemManagerFactory::get()->get_device()), ds_id_(ds_id) {
-  FarMemManagerFactory::get()->construct(kDataFrameVectorDSType, ds_id,
+      device_index_(FarMemManagerFactory::get()->select_best_device_index()), ds_id_(ds_id) {
+  device_ = FarMemManagerFactory::get()->get_device_by_index(device_index_);
+  device_->construct(kDataFrameVectorDSType, ds_id,
                                          sizeof(dt_id), &dt_id);
   // DataFrameVector essentially stores a std::vector of GenericUniquePtrs, so
   // it does not need a notifier.
@@ -36,7 +37,7 @@ void GenericDataFrameVector::cleanup() {
     for (auto &thread : threads) {
       thread.Join();
     }
-    FarMemManagerFactory::get()->destruct(ds_id_);
+    device_->destruct(ds_id_);
   }
 }
 
@@ -67,6 +68,8 @@ void GenericDataFrameVector::expand(uint64_t num) {
       for (uint64_t i = left; i < right; i++) {
         uint64_t obj_id = i + old_chunk_ptrs_size;
         auto &new_chunk_ptr = chunk_ptrs_[obj_id];
+        new_chunk_ptr.set_device_index(device_index_);
+        new_chunk_ptr.set_device(FarMemManagerFactory::get()->get_device_by_index(device_index_));
         while (unlikely(
             !FarMemManagerFactory::get()->allocate_generic_unique_ptr_nb(
                 &new_chunk_ptr, ds_id_, chunk_size_, sizeof(obj_id),

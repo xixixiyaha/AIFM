@@ -8,8 +8,8 @@ namespace far_memory {
 
 template <typename InduceFn, typename InferFn, typename MappingFn>
 FORCE_INLINE Prefetcher<InduceFn, InferFn, MappingFn>::Prefetcher(
-    FarMemDevice *device, uint8_t *state, uint32_t object_data_size)
-    : kPrefetchWinSize_(device->get_prefetch_win_size() / (object_data_size)),
+    uint32_t prefetch_win_size, uint8_t *state, uint32_t object_data_size)
+    : kPrefetchWinSize_(prefetch_win_size / (object_data_size)),
       state_(state), object_data_size_(object_data_size) {
   for (auto &trace : traces_) {
     trace.counter = 0;

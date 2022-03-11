@@ -91,6 +91,8 @@ public:
 class GenericFarMemPtr {
 private:
   FarMemPtrMeta meta_;
+  FarMemDevice *device_;
+  uint16_t device_index_;
 
 protected:
   friend class GenericDataFrameVector;
@@ -110,6 +112,10 @@ protected:
   void _flush(bool obj_locked);
 
 public:
+  FarMemDevice *get_device(){ return device_; }
+  void set_device(FarMemDevice *device){ device_ = device; }
+  uint16_t get_device_index(){ return device_index_; };
+  void set_device_index(uint16_t index){ device_index_ = index; }
   void nullify();
   bool is_null() const;
   void swap_in(bool nt);

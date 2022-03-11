@@ -70,6 +70,7 @@ private:
   uint32_t chunk_size_;
   uint32_t chunk_num_entries_;
   FarMemDevice *device_;
+  uint16_t device_index_;
   uint8_t ds_id_;
   uint64_t size_ = 0;
   uint64_t remote_vec_capacity_ = 0;

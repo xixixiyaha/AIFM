@@ -39,7 +39,7 @@ FORCE_INLINE DataFrameVector<T>::DataFrameVector(FarMemManager *manager)
                              get_dataframe_type_id<T>()),
       prefetcher_(new Prefetcher<decltype(kInduceFn), decltype(kInferFn),
                                  decltype(kMappingFn)>(
-          manager->get_device(), reinterpret_cast<uint8_t *>(&lock_),
+          manager->get_device_min_prefetch_win_size(), reinterpret_cast<uint8_t *>(&lock_),
           kRealChunkSize)) {}
 
 template <typename T>

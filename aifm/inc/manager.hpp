@@ -62,6 +62,7 @@ private:
   constexpr static double kFreeCacheHighThresh = 0.22;
   constexpr static uint8_t kGCSlaveThreadTaskQueueDepth = 8;
   constexpr static uint32_t kMaxNumRegionsPerGCRound = 128;
+  constexpr static uint32_t kMaxNumFarMemDevice = 8;
   constexpr static double kMaxRatioRegionsPerGCRound = 0.1;
   constexpr static double kMinRatioRegionsPerGCRound = 0.03;
 
@@ -90,9 +91,11 @@ private:
 
   RegionManager cache_region_manager_;
   RegionManager far_mem_region_manager_;
+  std::vector<RegionManager*> far_mem_region_managers_{kMaxNumFarMemDevice};
   std::atomic<uint32_t> pending_gcs_{0};
   bool gc_master_spawned_;
   std::unique_ptr<FarMemDevice> device_ptr_;
+  std::unique_ptr<std::vector<FarMemDevice*>> devices_ptr_{kMaxNumFarMemDevice};
   rt::CondVar mutator_cache_condvar_;
   rt::CondVar mutator_far_mem_condvar_;
   rt::Spin gc_lock_;
@@ -116,6 +119,8 @@ private:
 
   FarMemManager(uint64_t cache_size, uint64_t far_mem_size,
                 uint32_t num_gc_threads, FarMemDevice *device);
+  FarMemManager(uint64_t cache_size, uint64_t far_mem_size,
+                uint32_t num_gc_threads, std::vector<FarMemDevice> *devices);
   bool is_free_cache_almost_empty() const;
   bool is_free_cache_low() const;
   bool is_free_cache_high() const;
@@ -129,7 +134,7 @@ private:
   uint64_t allocate_local_object(bool nt, uint16_t object_size);
   std::optional<uint64_t> allocate_local_object_nb(bool nt,
                                                    uint16_t object_size);
-  uint64_t allocate_remote_object(bool nt, uint16_t object_size);
+  uint64_t allocate_remote_object_by_device_index(bool nt, uint16_t object_size, uint16_t index);
   void mutator_wait_for_gc_far_mem();
   void pick_from_regions();
   void mark_fm_ptrs(auto *preempt_guard);
@@ -152,6 +157,14 @@ public:
 
   ~FarMemManager();
   FarMemDevice *get_device() const { return device_ptr_.get(); }
+  FarMemDevice *get_device_by_index(uint16_t index) const{ return devices_ptr_->at(index);};
+
+  uint16_t select_best_device_index() const;
+  FarMemDevice *select_best_device() const;  
+  uint32_t get_device_min_prefetch_win_size() const{     
+    // 遍历devices_ptr_找到最小的prefetch_win_size
+    return get_device_by_index(0)->get_prefetch_win_size();
+  }
   double get_free_mem_ratio() const;
   bool allocate_generic_unique_ptr_nb(
       GenericUniquePtr *ptr, uint8_t ds_id, uint16_t item_size,
@@ -220,6 +233,9 @@ public:
   static FarMemManager *build(uint64_t cache_size,
                               std::optional<uint32_t> optional_num_gc_threads,
                               FarMemDevice *device);
+  static FarMemManager *build(uint64_t cache_size,
+                              std::optional<uint32_t> optional_num_gc_threads,
+                              std::vector<FarMemDevice> *devices);
   static FarMemManager *get();
 };
 
