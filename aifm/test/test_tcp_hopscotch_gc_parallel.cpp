@@ -124,13 +124,22 @@ void do_work(FarMemManager *manager) {
 int argc;
 void _main(void *arg) {
   char **argv = static_cast<char **>(arg);
-  std::string ip_addr_port(argv[1]);
-  auto raddr = helpers::str_to_netaddr(ip_addr_port);
+  std::string ip_addr_port1(argv[1]);
+  auto raddr1 = helpers::str_to_netaddr(ip_addr_port1);
+  std::string ip_addr_port2(argv[2]);
+  auto raddr2 = helpers::str_to_netaddr(ip_addr_port2);
+
+  std::vector<FarMemDevice*> *devices = new std::vector<FarMemDevice*>();
+  devices->push_back(new FakeDevice(kFarMemSize));
+  devices->push_back(new TCPDevice(raddr1, kNumConnections, kFarMemSize));
+  devices->push_back(new TCPDevice(raddr2, kNumConnections, kFarMemSize));
   std::unique_ptr<FarMemManager> manager =
       std::unique_ptr<FarMemManager>(FarMemManagerFactory::build(
-          kCacheSize, kNumGCThreads,
-          new TCPDevice(raddr, kNumConnections, kFarMemSize)));
+          kCacheSize, kNumGCThreads, devices));
   do_work(manager.get());
+  delete devices->at(0);
+  delete devices->at(1);
+  delete devices->at(2);
 }
 
 int main(int _argc, char *argv[]) {

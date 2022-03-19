@@ -90,6 +90,7 @@ FORCE_INLINE
 GenericDataFrameVector::GenericDataFrameVector(GenericDataFrameVector &&other)
     : chunk_size_(other.chunk_size_),
       chunk_num_entries_(other.chunk_num_entries_), device_(other.device_),
+      device_index_(other.device_index_),
       ds_id_(other.ds_id_), size_(other.size_),
       chunk_ptrs_(std::move(other.chunk_ptrs_)), moved_(false),
       dirty_(other.dirty_) {
@@ -103,6 +104,7 @@ operator=(GenericDataFrameVector &&other) {
   chunk_size_ = other.chunk_size_;
   chunk_num_entries_ = other.chunk_num_entries_;
   device_ = other.device_;
+  device_index_ = other.device_index_;
   ds_id_ = other.ds_id_;
   size_ = other.size_;
   chunk_ptrs_ = std::move(other.chunk_ptrs_);

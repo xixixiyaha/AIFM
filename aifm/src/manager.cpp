@@ -80,18 +80,22 @@ FarMemManager::FarMemManager(uint64_t cache_size, uint64_t far_mem_size,
 FarMemManager::FarMemManager(uint64_t cache_size, 
                              uint32_t num_gc_threads, std::vector<FarMemDevice*> *devices)
     : cache_region_manager_(cache_size, true),
-      devices_ptr_(devices),
+      far_mem_region_manager_(4ULL << 30, false), 
+      device_ptr_(nullptr), 
+      devices_vector_(*devices),
       parallel_marker_(num_gc_threads, kGCSlaveThreadTaskQueueDepth,
                        &from_regions_),
       parallel_write_backer_(num_gc_threads, kGCSlaveThreadTaskQueueDepth,
                              &from_regions_),
       num_gc_threads_(num_gc_threads) {
-  
+        
+  far_mem_region_managers_.clear();
   for(auto dev:*devices){
     far_mem_region_managers_.push_back(new RegionManager(dev->get_far_mem_size(), false));
+    BUG_ON(dev->get_far_mem_size() >= (1ULL << FarMemPtrMeta::kObjectIDBitSize));
   }
 
-  BUG_ON(far_mem_size >= (1ULL << FarMemPtrMeta::kObjectIDBitSize));
+  
 
   ksched_fd_ = open("/dev/ksched", O_RDWR);
   if (ksched_fd_ < 0) {
@@ -164,7 +168,7 @@ GenericUniquePtr FarMemManager::allocate_generic_unique_ptr(
   }
   auto ptr = GenericUniquePtr(local_object_addr);
   ptr.set_device_index(best_index);
-  ptr.set_device(get_device_by_index(best_index));
+  ptr.set_device(get_device_by_index(best_index));  
   Region::atomic_inc_ref_cnt(local_object_addr, -1);
   return ptr;
 }
@@ -328,7 +332,7 @@ void FarMemManager::swap_in(bool nt, GenericFarMemPtr *ptr) {
     auto ds_id = meta.get_ds_id();
     uint16_t obj_data_len;
     auto obj_data_addr = reinterpret_cast<uint8_t *>(obj.get_data_addr());
-    
+
     ptr->get_device()->read_object(ds_id, sizeof(obj_id),
                              reinterpret_cast<uint8_t *>(&obj_id),
                              &obj_data_len, obj_data_addr);
@@ -775,7 +779,7 @@ uint16_t FarMemManager::select_best_device_index(){
 }
 
 FarMemDevice* FarMemManager::select_best_device(){  
-  return devices_ptr_->at(select_best_device_index());
+  return devices_vector_.at(select_best_device_index());
 }
 
 
@@ -786,9 +790,8 @@ uint64_t FarMemManager::allocate_remote_object_by_device_index(bool nt, uint16_t
   std::optional<uint64_t> optional_remote_addr;
 retry_allocate_far_mem:
   RegionManager *best_far_mem_region_manager = far_mem_region_managers_.at(index);
-  best_device = devices_ptr_->at(index);
   auto &free_remote_region = best_far_mem_region_manager->core_local_free_region(nt);  
-  optional_remote_addr = free_remote_regions.allocate_object(object_size);
+  optional_remote_addr = free_remote_region.allocate_object(object_size);
   if (unlikely(!optional_remote_addr)) {
     bool success = best_far_mem_region_manager->try_refill_core_local_free_region(
         nt, &free_remote_region);
@@ -877,7 +880,7 @@ bool FarMemManager::reallocate_generic_unique_ptr_nb(const DerefScope &scope,
   wmb();
   ptr->init(local_object_addr);
   if (old_obj_ds_id == kVanillaPtrDSID) {
-    auto remote_object_addr = allocate_remote_object_by_device_index(false, object_size, ptr->get_device_index());
+    auto remote_object_addr = allocate_remote_object_by_device_index(false, new_obj_size, ptr->get_device_index());
     assert(old_obj_id_len == kVanillaPtrObjectIDSize);
     Object(local_object_addr, old_obj_ds_id,
            static_cast<uint16_t>(new_item_size), kVanillaPtrObjectIDSize,

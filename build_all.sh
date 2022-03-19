@@ -1,9 +1,9 @@
 #!/bin/bash
 
 # Shenango
-cd shenango
-./build.sh || { echo 'Failed to build Shenango.'; exit 1; }
-cd ..
+#cd shenango
+#./build.sh || { echo 'Failed to build Shenango.'; exit 1; }
+#cd ..
 
 # AIFM
 cd aifm

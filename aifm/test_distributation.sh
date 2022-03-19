@@ -1,6 +1,10 @@
 #!/bin/bash
+# [ Check list ]
+# Local:  shared_distributation.sh configs/ssh_distributation configs/client.config 
+# Server: configs/server.config 
+# Make sure that the absolute paths of the local and remote AIFM directorys are the same
 
-source shared.sh
+source shared_distributation.sh
 
 all_passed=1
 
@@ -30,7 +34,8 @@ function run_all_tests {
 
 function cleanup {
     kill_local_iokerneld
-    kill_mem_server
+    kill_mem_server_1
+    kill_mem_server_2
 }
 
 run_all_tests

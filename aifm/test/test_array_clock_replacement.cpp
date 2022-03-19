@@ -126,9 +126,11 @@ void do_work(FarMemManager *manager) {
 }
 
 void _main(void *arg) {
+  std::vector<FarMemDevice*> *devices = new std::vector<FarMemDevice*>();
+  devices->push_back(new FakeDevice(kFarMemSize));
   std::unique_ptr<FarMemManager> manager =
       std::unique_ptr<FarMemManager>(FarMemManagerFactory::build(
-          kCacheSize, kNumGCThreads, new FakeDevice(kFarMemSize)));
+          kCacheSize, kNumGCThreads, devices));
   do_work(manager.get());
 }
 

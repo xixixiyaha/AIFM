@@ -100,6 +100,8 @@ void GenericDataFrameVector::expand_no_alloc(uint64_t num) {
       for (uint64_t i = left; i < right; i++) {
         uint64_t obj_id = i + old_chunk_ptrs_size;
         auto &new_chunk_ptr = chunk_ptrs_[obj_id];
+        new_chunk_ptr.set_device_index(device_index_);
+        new_chunk_ptr.set_device(FarMemManagerFactory::get()->get_device_by_index(device_index_));
         new_chunk_ptr.meta().gc_wb(ds_id_, obj_size, obj_id);
       }
     });

@@ -95,7 +95,7 @@ private:
   std::atomic<uint32_t> pending_gcs_{0};
   bool gc_master_spawned_;
   std::unique_ptr<FarMemDevice> device_ptr_;
-  std::unique_ptr<std::vector<FarMemDevice*>> devices_ptr_{kMaxNumFarMemDevice};
+  std::vector<FarMemDevice*> devices_vector_{kMaxNumFarMemDevice};
   rt::CondVar mutator_cache_condvar_;
   rt::CondVar mutator_far_mem_condvar_;
   rt::Spin gc_lock_;
@@ -119,8 +119,8 @@ private:
 
   FarMemManager(uint64_t cache_size, uint64_t far_mem_size,
                 uint32_t num_gc_threads, FarMemDevice *device);
-  FarMemManager(uint64_t cache_size, uint64_t far_mem_size,
-                uint32_t num_gc_threads, std::vector<FarMemDevice> *devices);
+  FarMemManager(uint64_t cache_size, 
+                uint32_t num_gc_threads, std::vector<FarMemDevice*> *devices);
   bool is_free_cache_almost_empty() const;
   bool is_free_cache_low() const;
   bool is_free_cache_high() const;
@@ -157,12 +157,12 @@ public:
 
   ~FarMemManager();
   FarMemDevice *get_device() const { return device_ptr_.get(); }
-  FarMemDevice *get_device_by_index(uint16_t index) const{ return devices_ptr_->at(index);};
+  FarMemDevice *get_device_by_index(uint16_t index) const{ return devices_vector_.at(index);};
 
-  uint16_t select_best_device_index() const;
-  FarMemDevice *select_best_device() const;  
+  uint16_t select_best_device_index();
+  FarMemDevice *select_best_device();  
   uint32_t get_device_min_prefetch_win_size() const{     
-    // 遍历devices_ptr_找到最小的prefetch_win_size
+    // 遍历devices_vector_找到最小的prefetch_win_size
     return get_device_by_index(0)->get_prefetch_win_size();
   }
   double get_free_mem_ratio() const;
@@ -235,7 +235,7 @@ public:
                               FarMemDevice *device);
   static FarMemManager *build(uint64_t cache_size,
                               std::optional<uint32_t> optional_num_gc_threads,
-                              std::vector<FarMemDevice> *devices);
+                              std::vector<FarMemDevice*> *devices);
   static FarMemManager *get();
 };
 

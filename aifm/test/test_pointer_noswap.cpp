@@ -59,8 +59,11 @@ void _main(void *arg) {
   uint64_t far_mem_size = 1ULL << 33;
   uint8_t num_gc_threads = 12;
 
-  auto manager = std::unique_ptr<FarMemManager>(FarMemManagerFactory::build(
-      cache_size, num_gc_threads, new FakeDevice(far_mem_size)));
+  std::vector<FarMemDevice*> *devices = new std::vector<FarMemDevice*>();
+  devices->push_back(new FakeDevice(far_mem_size));
+  std::unique_ptr<FarMemManager> manager =
+      std::unique_ptr<FarMemManager>(FarMemManagerFactory::build(
+          cache_size, num_gc_threads, devices));
   do_work(manager.get());
 }
 

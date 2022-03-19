@@ -2,6 +2,8 @@
 
 #include "deref_scope.hpp"
 #include "object.hpp"
+#include "device.hpp"
+#include "helpers.hpp"
 
 namespace far_memory {
 
@@ -94,7 +96,7 @@ private:
   FarMemDevice *device_;
   uint16_t device_index_;
 
-protected:
+public:
   friend class GenericDataFrameVector;
   friend class GenericConcurrentHopscotch;
   friend class FarMemManager;
@@ -112,13 +114,14 @@ protected:
   void _flush(bool obj_locked);
 
 public:
-  FarMemDevice *get_device(){ return device_; }
-  void set_device(FarMemDevice *device){ device_ = device; }
-  uint16_t get_device_index(){ return device_index_; };
+  FarMemDevice *get_device() const{ return device_; }
+  void set_device(FarMemDevice *device) { device_ = device; }
+  uint16_t get_device_index() const{ return device_index_; };
   void set_device_index(uint16_t index){ device_index_ = index; }
   void nullify();
   bool is_null() const;
   void swap_in(bool nt);
+  void swap_out();
   void flush();
   void move(GenericFarMemPtr &other, uint64_t reset_value);
 };

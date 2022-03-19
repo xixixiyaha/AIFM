@@ -10,6 +10,7 @@ extern "C" {
 #include "manager.hpp"
 
 #include <cstring>
+#include<iostream>
 
 namespace far_memory {
 
@@ -19,6 +20,9 @@ GenericConcurrentHopscotch::GenericConcurrentHopscotch(
     : kHashMask_((1 << local_num_entries_shift) - 1),
       kNumEntries_((1 << local_num_entries_shift) + kNeighborhood),
       ds_id_(ds_id) {
+  device_index_ = FarMemManagerFactory::get()->select_best_device_index();
+  device_ = FarMemManagerFactory::get()->get_device_by_index(device_index_);
+  
   // Check overflow.
   BUG_ON(((kHashMask_ + 1) >> local_num_entries_shift) != 1);
 
@@ -38,7 +42,7 @@ GenericConcurrentHopscotch::GenericConcurrentHopscotch(
                    sizeof(remote_num_entries_shift));
   __builtin_memcpy(&params[sizeof(remote_num_entries_shift)], &remote_data_size,
                    sizeof(remote_data_size));
-  FarMemManagerFactory::get()->construct(kHashTableDSType, ds_id,
+  device_->construct(kHashTableDSType, ds_id,
                                          sizeof(params), params);
 
   // Register evac notifier.
@@ -61,7 +65,7 @@ GenericConcurrentHopscotch::~GenericConcurrentHopscotch() {
     }
   }
   // Free remote data.
-  FarMemManagerFactory::get()->destruct(ds_id_);
+  device_->destruct(ds_id_);
 }
 
 void GenericConcurrentHopscotch::do_evac_notifier(EvacNotifierMeta meta) {
@@ -85,7 +89,7 @@ void GenericConcurrentHopscotch::forward_get(uint8_t key_len,
                                              const uint8_t *key,
                                              uint16_t *val_len, uint8_t *val) {
   // Cannot find the key locally, so forward the request to the remote agent.
-  FarMemManagerFactory::get()->read_object(ds_id_, key_len, key, val_len, val);
+  device_->read_object(ds_id_, key_len, key, val_len, val);
   if (*val_len) {
     _put(key_len, key, *val_len, val, /* swap_in = */ true);
   }
@@ -255,6 +259,8 @@ retry:
   // Allocate memory.
   auto *final_entry = &buckets_[bucket_idx];
   auto *ptr = &(final_entry->ptr);
+  ptr->set_device_index(device_index_);
+  ptr->set_device(device_);
   if (!FarMemManagerFactory::get()->allocate_generic_unique_ptr_nb(
           ptr, ds_id_, sizeof(EvacNotifierMeta) + val_len, key_len, key)) {
     bucket_lock_guard.reset();
@@ -286,7 +292,7 @@ retry:
   // Ensure there's no copy at remote. Ideally we can make this happen
   // asynchronously and check completion before returning to client.
   if (!swap_in) {
-    FarMemManagerFactory::get()->remove_object(ds_id_, key_len, key);
+    device_->remove_object(ds_id_, key_len, key);
   }
   return false;
 }
@@ -338,7 +344,7 @@ retry:
   spin_guard.reset();
 
   // Forward the request to the remote agent.
-  return FarMemManagerFactory::get()->remove_object(ds_id_, key_len, key) ||
+  return device_->remove_object(ds_id_, key_len, key) ||
          removed;
 }
 

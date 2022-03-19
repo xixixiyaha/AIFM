@@ -3,7 +3,7 @@
 #include "dataframe_vector.hpp"
 #include "stats.hpp"
 #include "thread.h"
-
+#include <iostream>
 
 namespace far_memory {
 

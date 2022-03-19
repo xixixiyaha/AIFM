@@ -15,7 +15,7 @@ namespace far_memory {
 class FarMemManager;
 
 class GenericArray {
-protected:
+public:
   using Index_t = uint64_t;
   using Pattern_t = int64_t;
 

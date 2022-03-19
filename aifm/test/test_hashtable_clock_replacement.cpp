@@ -131,17 +131,23 @@ public:
   void do_work() {
     cout << "Running " << __FILE__ "..." << endl;
 
-    std::unique_ptr<FarMemManager> manager =
-        std::unique_ptr<FarMemManager>(FarMemManagerFactory::build(
-            kCacheSize, kNumGCThreads, new FakeDevice(kFarMemSize)));
+  std::vector<FarMemDevice*> *devices = new std::vector<FarMemDevice*>();
+  devices->push_back(new FakeDevice(kFarMemSize));
+  std::unique_ptr<FarMemManager> manager =
+      std::unique_ptr<FarMemManager>(FarMemManagerFactory::build(
+          kCacheSize, kNumGCThreads, devices));
 
     auto hopscotch = manager->allocate_concurrent_hopscotch(
         kHashTableNumEntriesShift, kHashTableNumEntriesShift,
         kHashTableRemoteDataSize);
     generate_kvs();
+    cout << "clock1" << endl;
     choose_hot_kvs();
+    cout << "clock2" << endl;
     put_kvs(&hopscotch);
+    cout << "clock3" << endl;
     get_kvs(&hopscotch);
+    cout << "clock4" << endl;
   }
 };
 } // namespace far_memory

@@ -3,6 +3,7 @@
 #include "helpers.hpp"
 #include "manager.hpp"
 
+#include <iostream>
 #include <cstdint>
 
 namespace far_memory {
@@ -56,6 +57,10 @@ void FarMemPtrMeta::gc_wb(uint8_t ds_id, uint16_t object_size,
 
 void GenericFarMemPtr::swap_in(bool nt) {
   FarMemManagerFactory::get()->swap_in(nt, this);
+}
+
+void GenericFarMemPtr::swap_out() {
+  FarMemManagerFactory::get()->swap_out(this, object());
 }
 
 bool GenericFarMemPtr::mutator_migrate_object() {
@@ -168,6 +173,9 @@ retry:
   }
 
   meta() = other.meta();
+  set_device(other.get_device());
+  set_device_index(other.get_device_index());
+
   wmb();
   if (other_present) {
     if (meta().is_shared()) {
@@ -259,6 +267,8 @@ void GenericSharedPtr::_free() {
 GenericSharedPtr &GenericSharedPtr::operator=(const GenericSharedPtr &other) {
   auto pin_guard = pin</* Shared */ true>();
   meta() = other.meta();
+  set_device_index(other.get_device_index());
+  set_device(other.get_device());
   next_ptr_ = other.next_ptr_;
   const_cast<GenericSharedPtr *>(&other)->next_ptr_ = this;
   return *this;

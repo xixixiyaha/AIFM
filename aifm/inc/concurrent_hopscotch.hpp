@@ -6,6 +6,7 @@
 #include "deref_scope.hpp"
 #include "helpers.hpp"
 #include "pointer.hpp"
+#include "device.hpp"
 
 #include <cstdint>
 #include <memory>
@@ -25,7 +26,7 @@ private:
 
     BucketEntry();
   };
-  static_assert(sizeof(BucketEntry) == 24);
+  static_assert(sizeof(BucketEntry) == 40);
 
 #pragma pack(push, 1)
   struct EvacNotifierMeta {
@@ -38,6 +39,9 @@ private:
   constexpr static uint32_t kNeighborhood = 32;
   constexpr static uint32_t kMaxRetries = 2;
   constexpr static uint32_t kEvacNotifierStashSize = 1024;
+
+  FarMemDevice* device_;
+  uint16_t device_index_;
 
   const uint32_t kHashMask_;
   const uint32_t kNumEntries_;

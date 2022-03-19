@@ -56,9 +56,11 @@ public:
 } // namespace far_memory
 
 void _main(void *arg) {
+  std::vector<FarMemDevice*> *devices = new std::vector<FarMemDevice*>();
+  devices->push_back(new FakeDevice(kFarMemSize));
   std::unique_ptr<FarMemManager> manager =
       std::unique_ptr<FarMemManager>(FarMemManagerFactory::build(
-          kCacheSize, kNumGCThreads, new FakeDevice(kFarMemSize)));
+          kCacheSize, kNumGCThreads, devices));
   FarMemTest test;
   test.do_work(manager.get());
 }
