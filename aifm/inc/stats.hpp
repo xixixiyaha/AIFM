@@ -19,8 +19,17 @@ class Stats {
 private:
   static bool enable_swap_;
 #ifdef MONITOR_FREE_MEM_RATIO
-  static std::vector<std::pair<uint64_t, double>>
-      free_mem_ratio_records_[helpers::kNumCPUs];
+  struct ratio_point{
+    double ratio;
+    int operation;//0 for gc ;1 for allocate;
+    int device_id;//start from 0,-1 is local
+  };
+  static std::vector<std::pair<uint64_t, ratio_point>>
+    free_mem_ratio_records_[helpers::kNumCPUs];
+  static std::vector<std::pair<uint64_t, ratio_point>>
+    free_far_mem_ratio_records1_[helpers::kNumCPUs];
+  static std::vector<std::pair<uint64_t, ratio_point>>
+    free_far_mem_ratio_records2_[helpers::kNumCPUs];
 #endif
 
 #ifdef MONITOR_READ_OBJECT_CYCLES
@@ -37,7 +46,7 @@ private:
   static unsigned write_object_cycles_low_end_;
 #endif
 
-  static void _add_free_mem_ratio_record();
+  static void _add_free_mem_ratio_record(int operation,int device_id);
 
 public:
 #define ADD_STAT(type, x, enable_flag)                                         \
@@ -78,7 +87,7 @@ public:                                                                        \
   static uint64_t get_softirq_us();
   static uint64_t get_gc_us();
   static uint64_t get_tcp_rw_bytes();
-  static void add_free_mem_ratio_record();
+  static void add_free_mem_ratio_record(int operation,int device_id);
   static void start_measure_read_object_cycles();
   static void finish_measure_read_object_cycles();
   static void reset_measure_read_object_cycles();

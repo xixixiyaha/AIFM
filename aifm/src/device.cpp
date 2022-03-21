@@ -3,6 +3,7 @@ extern "C" {
 #include <runtime/storage.h>
 }
 
+#include "manager.hpp"
 #include "device.hpp"
 #include "object.hpp"
 #include "stats.hpp"
@@ -128,6 +129,7 @@ void TCPDevice::construct(uint8_t ds_type, uint8_t ds_id, uint8_t param_len,
 }
 
 void TCPDevice::destruct(uint8_t ds_id) {
+  FarMemManagerFactory::get()->free_ds_id(ds_id);  
   auto remote_slave = shared_pool_.pop();
   _destruct(remote_slave, ds_id);
   shared_pool_.push(remote_slave);

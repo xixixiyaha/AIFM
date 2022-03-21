@@ -28,9 +28,9 @@ FORCE_INLINE uint64_t Stats::get_tcp_rw_bytes() {
   return get_tcp_tx_bytes() + get_tcp_rx_bytes();
 }
 
-FORCE_INLINE void Stats::add_free_mem_ratio_record() {
+FORCE_INLINE void Stats::add_free_mem_ratio_record(int operation,int device_id) {
 #ifdef MONITOR_FREE_MEM_RATIO
-  _add_free_mem_ratio_record();
+  _add_free_mem_ratio_record(operation,device_id);
 #endif
 }
 

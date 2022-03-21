@@ -30,6 +30,10 @@ FORCE_INLINE double FarMemManager::get_free_mem_ratio() const {
   return cache_region_manager_.get_free_region_ratio();
 }
 
+FORCE_INLINE double FarMemManager::get_free_far_mem_ratio(int device_index_) const {
+  return far_mem_region_managers_.at(device_index_)->get_free_region_ratio();
+}
+
 FORCE_INLINE bool FarMemManager::is_free_cache_low() const {
   return get_free_mem_ratio() <= kFreeCacheLowThresh;
 }
@@ -187,7 +191,9 @@ FORCE_INLINE void FarMemManager::unlock_object(uint8_t obj_id_len,
 
 FORCE_INLINE void FarMemManager::gc_check() {
   if (unlikely(is_free_cache_low())) {
-    Stats::add_free_mem_ratio_record();
+    #ifdef MONITOR_FREE_MEM_RATIO
+    Stats::add_free_mem_ratio_record(0,0);
+    #endif    
     ACCESS_ONCE(almost_empty) = is_free_cache_almost_empty();
 #ifndef STW_GC
     launch_gc_master();

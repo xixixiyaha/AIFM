@@ -115,6 +115,8 @@ private:
   friend class DerefScope;
   friend class GenericDataFrameVector;
   friend class GenericConcurrentHopscotch;
+  friend class TCPDevice;
+  
   template <typename T> friend class DataFrameVector;
 
   FarMemManager(uint64_t cache_size, uint64_t far_mem_size,
@@ -166,6 +168,7 @@ public:
     return get_device_by_index(0)->get_prefetch_win_size();
   }
   double get_free_mem_ratio() const;
+  double get_free_far_mem_ratio(int device_index_) const;
   bool allocate_generic_unique_ptr_nb(
       GenericUniquePtr *ptr, uint8_t ds_id, uint16_t item_size,
       std::optional<uint8_t> optional_id_len = {},
@@ -228,6 +231,7 @@ private:
 
   static FarMemManager *ptr_;
   friend class FarMemManager;
+  
 
 public:
   static FarMemManager *build(uint64_t cache_size,

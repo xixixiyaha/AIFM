@@ -22,7 +22,7 @@ extern "C" {
 using namespace hmdf;
 using namespace far_memory;
 
-constexpr uint64_t kCacheGBs            = 1;
+constexpr uint64_t kCacheGBs = 31;
 constexpr uint64_t kCacheSize           = kCacheGBs << 30;
 constexpr uint64_t kFarMemSize          = (1ULL << 30);  // 1 GB. Not relevant here.
 constexpr uint64_t kNumGCThreads        = 40;
@@ -225,8 +225,11 @@ void analyze_trip_timestamp(FarMemManager* manager, StdDataFrame<Index_t>& df)
     std::cout << min_visitor.get_result() << std::endl;
 
     auto pickup_hour_vec  = manager->allocate_dataframe_vector<char>();
+    std::cout << "pickup_hour_vec()" << std::endl;
     auto pickup_day_vec   = manager->allocate_dataframe_vector<char>();
+    std::cout << "pickup_day_vec()" << std::endl;
     auto pickup_month_vec = manager->allocate_dataframe_vector<char>();
+    std::cout << "pickup_month_vec()" << std::endl;
     std::map<char, int> pickup_hour_map;
     std::map<char, int> pickup_day_map;
     std::map<char, int> pickup_month_map;
@@ -359,14 +362,25 @@ void do_work(FarMemManager* manager)
 
 void _main(void* arg)
 {
-    char** argv = (char**)arg;
-    std::string ip_addr_port(argv[1]);
-    auto raddr = helpers::str_to_netaddr(ip_addr_port);
-    std::unique_ptr<FarMemManager> manager =
-        std::unique_ptr<FarMemManager>(FarMemManagerFactory::build(
-            kCacheSize, kNumGCThreads, new TCPDevice(raddr, kNumConnections, kFarMemSize)));
-    do_work(manager.get());
+	  char **argv = static_cast<char **>(arg);
+  std::string ip_addr_port1(argv[1]);
+  auto raddr1 = helpers::str_to_netaddr(ip_addr_port1);
+  std::string ip_addr_port2(argv[2]);
+  auto raddr2 = helpers::str_to_netaddr(ip_addr_port2);
+
+  std::vector<FarMemDevice*> *devices = new std::vector<FarMemDevice*>();
+  devices->push_back(new TCPDevice(raddr1, kNumConnections, kFarMemSize));
+  devices->push_back(new TCPDevice(raddr2, kNumConnections, kFarMemSize));
+  std::unique_ptr<FarMemManager> manager =
+      std::unique_ptr<FarMemManager>(FarMemManagerFactory::build(
+          kCacheSize, kNumGCThreads, devices));
+
+  do_work(manager.get());
+  delete devices->at(0);
+  delete devices->at(1);
+
 }
+
 
 int main(int _argc, char* argv[])
 {

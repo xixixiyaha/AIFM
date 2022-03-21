@@ -9,3 +9,5 @@ iokerneld
 main
 *.bak
 build
+log.*
+nohup.out

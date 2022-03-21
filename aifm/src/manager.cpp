@@ -12,6 +12,7 @@ extern "C" {
 
 #include "deref_scope.hpp"
 #include "manager.hpp"
+#include "stats.hpp"
 
 #include <algorithm>
 #include <cassert>
@@ -723,6 +724,9 @@ retry_allocate_local:
   if (likely(optional_local_addr)) {
     return *optional_local_addr;
   } else {
+    #ifdef MONITOR_FREE_MEM_RATIO
+    Stats::add_free_mem_ratio_record(1,-1);
+    #endif
     bool success = cache_region_manager_.try_refill_core_local_free_region(
         nt, &free_local_region);
     per_core_local_region_refilled = true;
@@ -753,6 +757,9 @@ retry_allocate_local:
   if (likely(optional_local_addr)) {
     return *optional_local_addr;
   } else {
+    #ifdef MONITOR_FREE_MEM_RATIO
+    Stats::add_free_mem_ratio_record(1,-1);
+    #endif
     bool success = cache_region_manager_.try_refill_core_local_free_region(
         nt, &free_local_region);
     per_core_local_region_refilled = true;
@@ -793,6 +800,9 @@ retry_allocate_far_mem:
   auto &free_remote_region = best_far_mem_region_manager->core_local_free_region(nt);  
   optional_remote_addr = free_remote_region.allocate_object(object_size);
   if (unlikely(!optional_remote_addr)) {
+    #ifdef MONITOR_FREE_MEM_RATIO
+    Stats::add_free_mem_ratio_record(1,index);
+    #endif
     bool success = best_far_mem_region_manager->try_refill_core_local_free_region(
         nt, &free_remote_region);
     if (unlikely(!success)) {

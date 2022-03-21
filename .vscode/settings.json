@@ -91,7 +91,21 @@
         "mempool.h": "c",
         "thread.h": "c",
         "init.h": "c",
-        "complex": "cpp"
+        "complex": "cpp",
+        "thread": "cpp",
+        "cstdarg": "cpp",
+        "strstream": "cpp",
+        "bitset": "cpp",
+        "unordered_set": "cpp",
+        "set": "cpp",
+        "iomanip": "cpp",
+        "mutex": "cpp",
+        "sstream": "cpp",
+        "cfenv": "cpp",
+        "cinttypes": "cpp",
+        "typeindex": "cpp",
+        "valarray": "cpp",
+        "netfwd": "cpp"
     },
     "C_Cpp.errorSquiggles": "Disabled"
 }
