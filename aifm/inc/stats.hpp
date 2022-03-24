@@ -20,16 +20,18 @@ private:
   static bool enable_swap_;
 #ifdef MONITOR_FREE_MEM_RATIO
   struct ratio_point{
-    double ratio;
+    double cache_ratio;
+    double far1_ratio;
+    double far2_ratio;
     int operation;//0 for gc ;1 for allocate;
     int device_id;//start from 0,-1 is local
   };
   static std::vector<std::pair<uint64_t, ratio_point>>
     free_mem_ratio_records_[helpers::kNumCPUs];
-  static std::vector<std::pair<uint64_t, ratio_point>>
-    free_far_mem_ratio_records1_[helpers::kNumCPUs];
-  static std::vector<std::pair<uint64_t, ratio_point>>
-    free_far_mem_ratio_records2_[helpers::kNumCPUs];
+  // static std::vector<std::pair<uint64_t, ratio_point>>
+  //   free_far_mem_ratio_records1_[helpers::kNumCPUs];
+  // static std::vector<std::pair<uint64_t, ratio_point>>
+  //   free_far_mem_ratio_records2_[helpers::kNumCPUs];
 #endif
 
 #ifdef MONITOR_READ_OBJECT_CYCLES

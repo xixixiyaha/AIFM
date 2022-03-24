@@ -33,7 +33,7 @@ using namespace std;
 DEFINE_DATA_TYPE(4096);
 
 constexpr uint64_t kCacheSize = 1500ULL << 20; // 1.5 GiB.
-constexpr uint64_t kFarMemSize = 10ULL << 30;  // 10 GiB.
+constexpr uint64_t kFarMemSize = 5ULL << 30;  // 5 GiB.
 constexpr uint64_t kNumEntries = 1
                                  << 20; // 1 million entries, 4 GiB working set.
 constexpr uint64_t kWorkSetSize = kNumEntries * sizeof(Data_t);
@@ -62,9 +62,9 @@ void do_work(FarMemManager *manager) {
     ptrs[i] = std::move(manager->allocate_unique_ptr<Data_t>());
     trash_ptrs[i] = std::move(manager->allocate_unique_ptr<Data_t>());
   }
-
+  delay_ms(10000);
   flush_cache();
-  delay_ms(1000);
+  delay_ms(10000);
 
   Stats::clear_free_mem_ratio_records();
   std::vector<rt::Thread> threads;
