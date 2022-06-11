@@ -6,16 +6,16 @@ all_passed=1
 
 function run_single_test {
     echo "Running test $1..."
-    
-    if [[ $1 == *"tcp"* ]]; then
     rerun_local_iokerneld
+    if [[ $1 == *"tcp"* ]]; then
+        # rerun_local_iokerneld
     	rerun_mem_server
-            if run_program ./bin/$1  | grep -q "Passed"; then
+    fi
+    if run_program ./bin/$1 2>/dev/null | grep -q "Passed"; then
         say_passed
     else
         say_failed
     	all_passed=0
-    fi
     fi
 
 }

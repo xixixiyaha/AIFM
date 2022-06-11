@@ -4,8 +4,8 @@ sudo ./scripts/setup_machine.sh
 # For multi
 AIFM_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 SHENANGO_PATH=$AIFM_PATH/../shenango
-MEM_SERVER_DPDK_IP_1=128.110.218.117
-MEM_SERVER_DPDK_IP_2=128.110.218.92
+MEM_SERVER_DPDK_IP_1=128.110.218.73
+MEM_SERVER_DPDK_IP_2=128.110.218.42
 MEM_SERVER_PORT=8000
 MEM_SERVER_STACK_KB=65536
 function run_program {    
@@ -28,7 +28,7 @@ sudo $AIFM_PATH/bin/tcp_device_server $AIFM_PATH/configs/server.config $MEM_SERV
 # For single
 AIFM_PATH="$( cd "$( dirname "${BASH_SOURCE[0]}" )" >/dev/null 2>&1 && pwd )"
 SHENANGO_PATH=$AIFM_PATH/../shenango
-MEM_SERVER_DPDK_IP=128.110.218.117
+MEM_SERVER_DPDK_IP=128.110.218.73
 MEM_SERVER_PORT=8000
 MEM_SERVER_STACK_KB=65536
 function run_program {    
