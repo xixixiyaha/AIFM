@@ -68,15 +68,15 @@ private:
   constexpr static uint32_t kMaxSlaveWaitUs = 5;
   constexpr static uint32_t kMaxNumPrefetchSlaveThreads = 16;
 
-  const uint32_t kPrefetchWinSize_; // In terms of number of objects.
+  const uint32_t kPrefetchWinSize_; // In terms of number of objects.预取窗口大小
   uint8_t *state_;
-  Pattern_t pattern_;
+  Pattern_t pattern_;//预取模式
   uint32_t object_data_size_;
-  Index_t last_idx_;
+  Index_t last_idx_;//上一个
   uint64_t hit_times_ = 0;
   uint32_t num_objs_to_prefetch = 0;
-  Index_t next_prefetch_idx_;
-  bool nt_ = false;
+  Index_t next_prefetch_idx_;//下一个要预取的index
+  bool nt_ = false;//是不是temporal
   Trace traces_[kIdxTracesSize];
   uint32_t traces_head_ = 0;
   uint32_t traces_tail_ = 0;
@@ -88,8 +88,8 @@ private:
   bool exit_ = false;
 
   void generate_prefetch_tasks();
-  void prefetch_master_fn();
-  void prefetch_slave_fn(uint32_t tid);
+  void prefetch_master_fn();//预取主线程
+  void prefetch_slave_fn(uint32_t tid);//预取从线程
 
 public:
   Prefetcher(uint32_t prefetch_win_size, uint8_t *state, uint32_t object_data_size);

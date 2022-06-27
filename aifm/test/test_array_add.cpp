@@ -26,6 +26,7 @@ uint64_t raw_array_C[kNumEntries];
 
 template <uint64_t N, typename T>
 void copy_array(Array<T, N> *array, T *raw_array) {
+  cout<<".............copy_array_length: "<<N;
   for (uint64_t i = 0; i < N; i++) {
     DerefScope scope;
     (*array).at_mut(scope, i) = raw_array[i];
@@ -35,6 +36,7 @@ void copy_array(Array<T, N> *array, T *raw_array) {
 template <typename T, uint64_t N>
 void add_array(Array<T, N> *array_C, Array<T, N> *array_A,
                Array<T, N> *array_B) {
+  cout<<".............add_array";
   for (uint64_t i = 0; i < N; i++) {
     DerefScope scope;
     (*array_C).at_mut(scope, i) =
@@ -43,6 +45,7 @@ void add_array(Array<T, N> *array_C, Array<T, N> *array_A,
 }
 
 void gen_random_array(uint64_t num_entries, uint64_t *raw_array) {
+  cout<<".............gen_random_array";
   std::random_device rd;
   std::mt19937_64 eng(rd());
   std::uniform_int_distribution<uint64_t> distr;
@@ -61,6 +64,7 @@ void do_work(FarMemManager *manager) {
 
   gen_random_array(kNumEntries, raw_array_A);
   gen_random_array(kNumEntries, raw_array_B);
+  cout<<"The size of raw_array_A: "<<std::size(raw_array_A)<<endl;
   copy_array(&array_A, raw_array_A);
   copy_array(&array_B, raw_array_B);
   add_array(&array_C, &array_A, &array_B);
@@ -71,8 +75,15 @@ void do_work(FarMemManager *manager) {
       goto fail;
     }
   }
-
+  
+  // cout << "Passed1" << endl;
   cout << "Passed" << endl;
+  // for (uint64_t i = 0; i < kNumEntries; i++) {
+  //   // raw_array[i] = distr(eng);
+  //   cout<<"...context_array..."<<raw_array_A[i]<<endl;
+  //   cout<<"...run_to_here..."<<endl;
+  // }
+  // cout << "Passed2" << endl;
   return;
 
 fail:
@@ -81,11 +92,15 @@ fail:
 }
 
 void _main(void *arg) {
+  //由于本地内存不够，所以创建了一个远程device来进行内存卸载
   std::vector<FarMemDevice*> *devices = new std::vector<FarMemDevice*>();
   devices->push_back(new FakeDevice(kFarMemSize));
+  // devices->push_back(new FakeDevice(kFarMemSize));
   std::unique_ptr<FarMemManager> manager =
       std::unique_ptr<FarMemManager>(FarMemManagerFactory::build(
           kCacheSize, kNumGCThreads, devices));
+          //FarMemManagerFactory创建FarMemManager，创建FarMemManagerFactory类型的唯一指针
+          // std::unique_ptr<int> up1(new int(11));unique指针用法
   do_work(manager.get());
 }
 

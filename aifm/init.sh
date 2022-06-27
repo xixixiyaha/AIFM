@@ -37,7 +37,7 @@ function run_program {
 }
 sudo $SHENANGO_PATH/iokerneld simple > /dev/null 2>&1 &
 
-# run_program ./bin/test_array_add_rw_api
+run_program ./bin/test_array_add_rw_api
 # run_program ./bin/test_tcp_array_add
 
 ulimit -s $MEM_SERVER_STACK_KB; 

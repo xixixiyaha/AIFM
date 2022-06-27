@@ -27,7 +27,7 @@ function run_single_test {
 
 function run_all_tests {
     # TESTS=`ls bin | grep test_`
-    TESTS=`ls bin | grep test_tcp_`
+    TESTS=`ls bin | grep test_tcp_pointer_`
     for test in $TESTS
     do
         run_single_test $test
@@ -48,3 +48,4 @@ if [[ $all_passed -eq 1 ]]; then
 else
     exit -1
 fi
+

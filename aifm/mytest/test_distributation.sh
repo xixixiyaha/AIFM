@@ -4,7 +4,7 @@
 # Server: configs/server.config 
 # Make sure that the absolute paths of the local and remote AIFM directorys are the same
 
-source shared_distributation.sh
+source ../shared_distributation.sh
 
 all_passed=1
 
@@ -15,7 +15,6 @@ function run_single_test {
         # rerun_local_iokerneld
     	rerun_mem_server
     fi
-    run_program ./bin/$1
     if run_program ./bin/$1 | grep -q "Passed"; then
         say_passed
     else
@@ -26,8 +25,8 @@ function run_single_test {
 }
 
 function run_all_tests {
-    # TESTS=`ls bin | grep test_`
-    TESTS=`ls bin | grep test_tcp_`
+    TESTS=`ls bin | grep my_test_`
+    # TESTS=`ls bin | grep test_tcp_`
     for test in $TESTS
     do
         run_single_test $test

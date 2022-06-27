@@ -46,6 +46,7 @@ void gen_random_array(uint64_t num_entries, uint64_t *raw_array) {
 
   for (uint64_t i = 0; i < num_entries; i++) {
     raw_array[i] = distr(eng);
+    cout<<"...context_array..."<<raw_array[i]<<endl;
   }
 }
 
@@ -68,6 +69,10 @@ void do_work(FarMemManager *manager) {
       goto fail;
     }
   }
+  for (uint64_t i = 0; i < kNumEntries; i++) {
+    DerefScope scope;
+    cout<<"The member of Array_C: "<<array_C.at(scope,i);
+  }
 
   cout << "Passed" << endl;
   return;
@@ -79,10 +84,13 @@ fail:
 
 void _main(void *arg) {
   std::vector<FarMemDevice*> *devices = new std::vector<FarMemDevice*>();
+    // cout<<"array_test_device_output..."<<device<<endl;
+  
   devices->push_back(new FakeDevice(kFarMemSize));
   std::unique_ptr<FarMemManager> manager =
       std::unique_ptr<FarMemManager>(FarMemManagerFactory::build(
           kCacheSize, kNumGCThreads, devices));
+  // cout<<"array_test_memory_manager_result_output..."<<manager.get()<<endl;
   do_work(manager.get());
 }
 

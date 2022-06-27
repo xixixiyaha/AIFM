@@ -51,9 +51,10 @@ public:
     uint64_t num_not_present = 0;
     for (uint64_t i = 0; i < kNumEntries; i++) {
       DerefScope scope;
-      num_not_present += !(array->GenericArray::at(nt, i)->meta().is_present());
+      num_not_present += !(array->GenericArray::at(nt, i)->meta().is_present());//GenericArray::at(nt, i)是ptr
       if (nt) {
-        array->at<true>(scope, i);
+        array->at<true>(scope, i);//解引用非时序*(ptr->template deref_mut<true>(scope))
+        // cout<<"read temporal array: "<<num<<endl;
       } else {
         array->at<false>(scope, i);
       }
@@ -99,9 +100,14 @@ public:
     read_array(&array_A, false);
     read_array(&array_B, false);
 
+
     // Do non-temporal read.
     read_array(&array_C, true);
     read_array(&array_A, true);
+    // for (uint64_t i = 0; i < kNumEntries; i++) {
+    //   DerefScope scope;
+    //   cout<<"read non-temporal array: "<<array_A.at(scope,i)<<endl;
+    // }
 
     // Check.
     array_B.disable_prefetch();
@@ -123,6 +129,11 @@ public:
     // Do non-temporal write.
     write_array(&array_C, true);
     write_array(&array_A, true);
+    // for (uint64_t i = 0; i < kNumEntries; i++) {
+    //   DerefScope scope;
+    //   num=array_A.at(scope,i);
+    //   cout<<"read temporal array: "<<num<<endl;
+    // }
 
     // Check.
     num_not_present = read_array(&array_B, false);

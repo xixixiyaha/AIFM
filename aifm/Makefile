@@ -5,6 +5,9 @@ librt_libs = $(SHENANGO_PATH)/bindings/cc/librt++.a
 INC += -I$(SHENANGO_PATH)/bindings/cc -I$(SHENANGO_PATH)/ksched -Iinc \
        -IDataFrame/AIFM/include/
 
+# my_test_array_add_src = test/my_test_array_add.cpp
+# my_test_array_add_obj = $(my_test_array_add_src:.cpp=.o)
+
 test_pointer_noswap_src = test/test_pointer_noswap.cpp
 test_pointer_noswap_obj = $(test_pointer_noswap_src:.cpp=.o)
 
@@ -127,6 +130,9 @@ bin/test_local_skiplist_serial bin/test_local_list bin/test_list bin/test_list_g
 bin/test_pointer_swap_rw_api bin/test_array_add_rw_api bin/test_dataframe_vector bin/test_csv_reader \
 bin/test_shared_pointer bin/test_embedded_pointer libaifm.a
 
+# bin/my_test_array_add: $(my_test_array_add_obj) $(librt_libs) $(RUNTIME_DEPS) $(lib_obj)
+# 	$(LDXX) -o $@ $(my_test_array_add_obj) $(lib_obj) $(librt_libs) $(RUNTIME_LIBS) $(LDFLAGS)
+	
 bin/test_pointer_noswap: $(test_pointer_noswap_obj) $(librt_libs) $(RUNTIME_DEPS) $(lib_obj)
 	$(LDXX) -o $@ $(test_pointer_noswap_obj) $(lib_obj) $(librt_libs) $(RUNTIME_LIBS) $(LDFLAGS)
 

@@ -11,7 +11,11 @@ function run_single_test {
         # rerun_local_iokerneld
     	rerun_mem_server
     fi
-    if run_program ./bin/$1 2>/dev/null | grep -q "Passed"; then
+
+    run_program ./bin/$1
+    
+    # if run_program ./bin/$1 2>/dev/null | grep -q "Passed"; then
+    if run_program ./bin/$1 | grep -q "Passed"; then
         say_passed
     else
         say_failed

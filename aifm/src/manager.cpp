@@ -135,7 +135,7 @@ bool FarMemManager::allocate_generic_unique_ptr_nb(
     return false;
   }
   auto local_object_addr = *optional_local_object_addr;
-  ptr->init(local_object_addr);
+  ptr->init(local_object_addr);//pointer's address
   if (!optional_id_len) {
     auto remote_object_addr = allocate_remote_object_by_device_index(false, object_size, ptr->get_device_index());
     Object(local_object_addr, ds_id, static_cast<uint16_t>(item_size),

@@ -33,20 +33,24 @@ void do_work(FarMemManager *manager) {
   std::vector<UniquePtr<Data_t>> vec;
 
   for (uint64_t i = 0; i < kNumEntries; i++) {
-    auto far_mem_ptr = manager->allocate_unique_ptr<Data_t>();
+    auto far_mem_ptr = manager->allocate_unique_ptr<Data_t>();//每次循环都会创建一个指针，在内存地址写入数据，然后通过move把数据放到vec中
     {
       DerefScope scope;
-      auto raw_mut_ptr = far_mem_ptr.deref_mut(scope);
+      auto raw_mut_ptr = far_mem_ptr.deref_mut(scope);//解引用的指针
       memset(raw_mut_ptr->data, static_cast<char>(i), sizeof(Data_t));
+      // cout<<"data address: "<<raw_mut_ptr->data<<", data value: "<<static_cast<char>(i)<<endl;
     }
-    vec.emplace_back(std::move(far_mem_ptr));
+    vec.emplace_back(std::move(far_mem_ptr));//数据最后都在vector里了
   }
 
   for (uint64_t i = 0; i < kNumEntries; i++) {
     {
       DerefScope scope;
       const auto raw_const_ptr = vec[i].deref(scope);
+      cout<<"The length of data: "<<sizeof(Data_t)<<endl;
+      cout<<"static_cast<char>(i) = "<<static_cast<char>(i)<<endl;
       for (uint32_t j = 0; j < sizeof(Data_t); j++) {
+        // cout<<"data value of raw_const_ptr: "<<raw_const_ptr->data[j]<<endl;
         if (raw_const_ptr->data[j] != static_cast<char>(i)) {
           goto fail;
         }

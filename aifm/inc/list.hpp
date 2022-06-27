@@ -36,8 +36,8 @@ private:
 
   static GenericLocalListNode<ChunkNodePtr> &
   deref_node_ptr(ChunkNodePtr ptr, ChunkListState state);
-  static ChunkNodePtr allocate_node(ChunkListState state);
-  static void free_node(ChunkNodePtr ptr, ChunkListState state);
+  static ChunkNodePtr allocate_node(ChunkListState state);//为一个节点分配一个指针
+  static void free_node(ChunkNodePtr ptr, ChunkListState state);//free掉一个node
 
   constexpr static auto kDerefNodePtrFn =
       [](ChunkNodePtr ptr,
@@ -55,7 +55,7 @@ private:
 #pragma pack(push, 1)
   struct LocalNode {
     GenericUniquePtr ptr;
-    ChunkList chunk_list;
+    ChunkList chunk_list;//
     uint8_t cnt = 0;
     bool swapping_in = false;
     uint8_t paddings[6];
@@ -94,10 +94,10 @@ private:
   using GenericIterator = GenericIteratorImpl</* Reverse = */ false>;
   using ReverseGenericIterator = GenericIteratorImpl</* Reverse = */ true>;
 
-  constexpr static uint16_t kMinNumNodesPerChunk = 8;
+  constexpr static uint16_t kMinNumNodesPerChunk = 8;//每块最少的节点数
   constexpr static uint16_t kMaxNumNodesPerChunk = 64;
   constexpr static uint16_t kInvalidCnt = kMaxNumNodesPerChunk + 1;
-  constexpr static uint16_t kDefaultChunkSize = 4096;
+  constexpr static uint16_t kDefaultChunkSize = 4096;//默认chunk大小
   constexpr static double kMergeThreshRatio = 0.75;
 
   const uint16_t kItemSize_;
@@ -121,28 +121,28 @@ private:
   GenericList(const DerefScope &scope, const uint16_t kItemSize,
               const uint16_t kNumNodesPerChunk, bool enable_merge,
               bool customized_split = false);
-  void init_local_node(const DerefScope &scope, LocalNode *local_node);
+  void init_local_node(const DerefScope &scope, LocalNode *local_node);//初始化本地node
   template <bool Reverse>
   LocalList<LocalNode>::IteratorImpl<Reverse>
   add_local_list_node(const DerefScope &scope,
-                      const LocalList<LocalNode>::IteratorImpl<Reverse> &iter);
+                      const LocalList<LocalNode>::IteratorImpl<Reverse> &iter);//添加本地node
   template <bool Reverse>
   GenericList::GenericIteratorImpl<Reverse>
   remove_local_list_node(const DerefScope &scope,
-                         const GenericIteratorImpl<Reverse> &iter);
+                         const GenericIteratorImpl<Reverse> &iter);//删除本地node
   template <bool Reverse>
   GenericIteratorImpl<Reverse>
   split_local_list_node(const DerefScope &scope,
-                        const GenericIteratorImpl<Reverse> &iter);
+                        const GenericIteratorImpl<Reverse> &iter);//分割本地node
   template <bool Reverse>
   void merge_local_list_node(
       const DerefScope &scope,
       const LocalList<LocalNode>::IteratorImpl<Reverse> &local_iter,
-      const LocalList<LocalNode>::IteratorImpl<Reverse> &next_local_iter);
+      const LocalList<LocalNode>::IteratorImpl<Reverse> &next_local_iter);//合并list
 
   template <bool Mut>
   static void update_chunk_list_addr(const DerefScope &scope,
-                                     LocalNode *local_node);
+                                     LocalNode *local_node);//更新chunklist的起始地址
 
   template <bool Reverse>
   void
@@ -157,31 +157,29 @@ public:
   ReverseGenericIterator rend(const DerefScope &scope) const;
   const uint8_t *cfront(const DerefScope &scope) const;
   const uint8_t *cback(const DerefScope &scope) const;
-  uint8_t *front(const DerefScope &scope) const;
-  uint8_t *back(const DerefScope &scope) const;
-  uint64_t size() const;
-  bool empty() const;
-  uint8_t *new_front(const DerefScope &scope);
-  uint8_t *pop_front(const DerefScope &scope);
-  uint8_t *new_back(const DerefScope &scope);
-  uint8_t *pop_back(const DerefScope &scope);
+  uint8_t *front(const DerefScope &scope) const;//取出第一个元素
+  uint8_t *back(const DerefScope &scope) const;//取出最后一个元素
+  uint64_t size() const;//list大小
+  bool empty() const;//判断list是空的吗
+  uint8_t *new_front(const DerefScope &scope);//在list首部插入元素
+  uint8_t *pop_front(const DerefScope &scope);//弹出首部元素
+  uint8_t *new_back(const DerefScope &scope);//在尾部插入元素
+  uint8_t *pop_back(const DerefScope &scope);//弹出尾部元素
   template <bool Reverse>
-  uint8_t *insert(const DerefScope &scope, GenericIteratorImpl<Reverse> *iter);
+  uint8_t *insert(const DerefScope &scope, GenericIteratorImpl<Reverse> *iter);//插入
   template <bool Reverse>
   GenericIteratorImpl<Reverse> erase(const DerefScope &scope,
                                      const GenericIteratorImpl<Reverse> &iter,
-                                     uint8_t **data_ptr);
+                                     uint8_t **data_ptr);//合并
 };
 
 template <typename T> class List : public GenericList {
 private:
   constexpr static uint16_t kNumNodesPerChunk =
       std::max(static_cast<uint16_t>(kMinNumNodesPerChunk),
-               std::min(static_cast<uint16_t>(kMaxNumNodesPerChunk),
-                        static_cast<uint16_t>(
-                            (kDefaultChunkSize - sizeof(ChunkListData) -
-                             sizeof(ChunkList::ListData)) /
-                            (sizeof(T) + sizeof(ChunkList::Node)))));
+               std::min(static_cast<uint16_t>(kMaxNumNodesPerChunk), 
+               static_cast<uint16_t>((kDefaultChunkSize - sizeof(ChunkListData) - sizeof(ChunkList::ListData)) 
+               / (sizeof(T) + sizeof(ChunkList::Node)))));
 
   static_assert(kNumNodesPerChunk <= 8 * sizeof(ChunkListData::meta));
 

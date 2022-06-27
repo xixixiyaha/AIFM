@@ -57,12 +57,36 @@ void gen_random_array(uint64_t num_entries, uint64_t *raw_array) {
 }
 
 void do_work(FarMemManager *manager) {
+  
   auto array_A = manager->allocate_array<uint64_t, kNumEntries>();
   auto array_B = manager->allocate_array<uint64_t, kNumEntries>();
   auto array_C = manager->allocate_array<uint64_t, kNumEntries>();
 
+  GenericUniquePtr* ptr_a = &array_A.ptrs_[0];
+  GenericUniquePtr* ptr_b = &array_B.ptrs_[0];
+  GenericUniquePtr* ptr_c = &array_C.ptrs_[0];
+  
+  cout<<"array_A `_device:"<<ptr_a->get_device()<<endl;
+  cout<<"array_A `_device_index:"<<ptr_a->get_device_index()<<endl;
+  cout<<"array_A `_object_address:"<<ptr_a->meta().get_object_data_addr()<<endl;
+  cout<<"array_B `_device:"<<ptr_b->get_device()<<endl;
+  cout<<"array_B `_device_index:"<<ptr_c->get_device_index()<<endl;
+  cout<<"array_B `_object_address:"<<ptr_b->meta().get_object_data_addr()<<endl;
+  cout<<"array_C `_device:"<<ptr_c->get_device()<<endl;
+  cout<<"array_C `_device_index:"<<ptr_c->get_device_index()<<endl;
+  cout<<"array_C `_object_address:"<<ptr_c->meta().get_object_data_addr()<<endl;
+
   gen_random_array(kNumEntries, raw_array_A);
   gen_random_array(kNumEntries, raw_array_B);
+  for (uint64_t i = 0; i < 10; i++) {
+    GenericUniquePtr* ptr_a = &array_A.ptrs_[i];
+    cout<<"array_A `_device" <<i<<" : "<<ptr_a->get_device()<<endl;
+    cout<<"array_A `_device_index" <<i<<" : "<<ptr_a->get_device_index()<<endl;
+    cout<<"array_A `_object_address" <<i<<" : "<<ptr_a->meta().get_object_data_addr()<<endl;
+    cout<<"array_A["<<i<<"]:"<<raw_array_A[i]<<endl;
+  }
+
+
   copy_array(&array_A, raw_array_A);
   copy_array(&array_B, raw_array_B);
   add_array(&array_C, &array_A, &array_B);
