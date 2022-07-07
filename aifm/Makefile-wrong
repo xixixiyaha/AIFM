@@ -95,10 +95,10 @@ test_shared_pointer_obj = $(test_shared_pointer_src:.cpp=.o)
 test_embedded_pointer_src = test/test_embedded_pointer.cpp
 test_embedded_pointer_obj = $(test_embedded_pointer_src:.cpp=.o)
 
-target_src = src/tcp_device_server.cpp src/tcp_remote_request.cpp
+# target_src = src/tcp_device_server.cpp src/tcp_remote_request.cpp
 lib_src = $(wildcard src/*.cpp)
-lib_src := $(filter-out src/tcp_device_server.cpp src/tcp_remote_request.cpp,$(lib_src))
-# lib_src := $(filter-out target_src,$(lib_src))
+# lib_src := $(filter-out src/tcp_device_server.cpp,$(lib_src))
+lib_src := $(filter-out src/tcp_remote_request.cpp,$(lib_src))
 lib_obj = $(lib_src:.cpp=.o)
 
 test_src = $(test_pointer_noswap_src) $(test_pointer_swap_src) $(test_pointer_concurrent_src)  \
@@ -116,8 +116,8 @@ src = $(lib_src) $(test_src)
 obj = $(src:.cpp=.o)
 dep = $(obj:.o=.d)
 
-tcp_device_server_src = src/tcp_device_server.cpp
-tcp_device_server_obj = $(tcp_device_server_src:.cpp=.o)
+# tcp_device_server_src = src/tcp_device_server.cpp
+# tcp_device_server_obj = $(tcp_device_server_src:.cpp=.o)
 
 tcp_remote_request_src = src/tcp_remote_request.cpp
 tcp_remote_request_obj = $(tcp_remote_request_src:.cpp=.o)
@@ -125,9 +125,9 @@ tcp_remote_request_obj = $(tcp_remote_request_src:.cpp=.o)
 override CXXFLAGS += -std=gnu++2a -fconcepts -Wno-unused-function
 CXXFLAGS := $(filter-out -std=gnu++17,$(CXXFLAGS))
 override LDFLAGS += -lnuma
-
+# bin/tcp_device_server bin/tcp_device_server
 all: bin/test_pointer_noswap bin/test_pointer_swap bin/test_pointer_concurrent bin/test_array_add bin/test_array_nt \
-bin/test_array_clock_replacement bin/tcp_device_server bin/tcp_device_server bin/test_tcp_pointer_swap \
+bin/test_array_clock_replacement bin/test_tcp_pointer_swap \
 bin/test_tcp_array_add bin/test_hopscotch_serial bin/test_slab bin/test_local_hopscotch_serial \
 bin/test_hopscotch_gc_serial bin/test_hopscotch_parallel bin/test_hopscotch_gc_parallel \
 bin/test_tcp_hopscotch_gc_serial bin/test_tcp_hopscotch_gc_parallel bin/test_hashtable_clock_replacement \
@@ -186,10 +186,10 @@ bin/test_tcp_hopscotch_gc_serial: $(test_tcp_hopscotch_gc_serial_obj) $(librt_li
 bin/test_tcp_hopscotch_gc_parallel: $(test_tcp_hopscotch_gc_parallel_obj) $(librt_libs) $(RUNTIME_DEPS) $(lib_obj)
 	$(LDXX) -o $@ $(test_tcp_hopscotch_gc_parallel_obj) $(lib_obj) $(librt_libs) $(RUNTIME_LIBS) $(LDFLAGS)
 
-bin/tcp_device_server: $(tcp_device_server_obj) $(lib_obj)
-	$(LDXX) -o $@ $(tcp_device_server_obj) $(lib_obj) $(librt_libs) $(RUNTIME_LIBS) $(LDFLAGS)
+# bin/tcp_device_server: $(tcp_device_server_obj) $(lib_obj)
+# 	$(LDXX) -o $@ $(tcp_device_server_obj) $(lib_obj) $(librt_libs) $(RUNTIME_LIBS) $(LDFLAGS)
 
-# # tcp_remote_request
+# tcp_remote_request
 bin/tcp_remote_request: $(tcp_remote_request_obj) $(lib_obj)
 	$(LDXX) -o $@ $(tcp_remote_request_obj) $(lib_obj) $(librt_libs) $(RUNTIME_LIBS) $(LDFLAGS)
 
@@ -232,8 +232,8 @@ bin/test_shared_pointer: $(test_shared_pointer_obj) $(librt_libs) $(RUNTIME_DEPS
 bin/test_embedded_pointer: $(test_embedded_pointer_obj) $(librt_libs) $(RUNTIME_DEPS) $(lib_obj)
 	$(LDXX) -o $@ $(test_embedded_pointer_obj) $(lib_obj) $(librt_libs) $(RUNTIME_LIBS) $(LDFLAGS)
 
-$(tcp_device_server_obj): $(tcp_device_server_src)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+# $(tcp_device_server_obj): $(tcp_device_server_src)
+# 	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 # tcp_remote_request
 $(tcp_remote_request_obj): $(tcp_remote_request_src)
