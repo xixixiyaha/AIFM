@@ -15,7 +15,7 @@ function run_single_test {
         # rerun_local_iokerneld
     	rerun_mem_server
     fi
-    run_program ./bin/$1
+    # run_program ./bin/$1
     if run_program ./bin/$1 | grep -q "Passed"; then
         say_passed
     else

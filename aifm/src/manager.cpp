@@ -333,7 +333,8 @@ void FarMemManager::swap_in(bool nt, GenericFarMemPtr *ptr) {
     auto ds_id = meta.get_ds_id();
     uint16_t obj_data_len;
     auto obj_data_addr = reinterpret_cast<uint8_t *>(obj.get_data_addr());
-
+    // std::cout<<"debug....... the swapping_in object'd ds_id is null or not!!!!!!!!!!!!!!!!!!!!!!!!!"<<ds_id<<" .."<<obj_id<<std::endl;
+    // assert(ds_id!=null);
     ptr->get_device()->read_object(ds_id, sizeof(obj_id),
                              reinterpret_cast<uint8_t *>(&obj_id),
                              &obj_data_len, obj_data_addr);
@@ -409,7 +410,7 @@ void FarMemManager::swap_out(GenericFarMemPtr *ptr, Object obj) {
   auto obj_size = obj.size();
   auto ds_id = obj.get_ds_id();
   auto data_ptr = reinterpret_cast<const uint8_t *>(obj.get_data_addr());
-
+  std::cout<<"debug....... the swapping_in object'd ds_id is null or not!!!!!!!!!!!!!!!!!!!!!!!!!"<<ds_id<<" .."<<obj_id<<std::endl;
   // 
   auto write_object_fn = [&](uint32_t data_len) {
     if (dirty) {

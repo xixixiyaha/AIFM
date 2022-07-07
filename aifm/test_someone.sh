@@ -27,7 +27,7 @@ function run_single_test {
 
 function run_all_tests {
     # TESTS=`ls bin | grep test_`
-    TESTS=`ls bin | grep test_tcp_pointer_`
+    TESTS=`ls bin | grep test_tcp_array_`
     for test in $TESTS
     do
         run_single_test $test

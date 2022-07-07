@@ -62,34 +62,55 @@ void do_work(FarMemManager *manager) {
   auto array_B = manager->allocate_array<uint64_t, kNumEntries>();
   auto array_C = manager->allocate_array<uint64_t, kNumEntries>();
 
-  GenericUniquePtr* ptr_a = &array_A.ptrs_[0];
-  GenericUniquePtr* ptr_b = &array_B.ptrs_[0];
-  GenericUniquePtr* ptr_c = &array_C.ptrs_[0];
+  // GenericUniquePtr* ptr_a = &array_A.ptrs_[0];
+  // GenericUniquePtr* ptr_b = &array_B.ptrs_[0];
+  // GenericUniquePtr* ptr_c = &array_C.ptrs_[0];
   
-  cout<<"array_A `_device:"<<ptr_a->get_device()<<endl;
-  cout<<"array_A `_device_index:"<<ptr_a->get_device_index()<<endl;
-  cout<<"array_A `_object_address:"<<ptr_a->meta().get_object_data_addr()<<endl;
-  cout<<"array_B `_device:"<<ptr_b->get_device()<<endl;
-  cout<<"array_B `_device_index:"<<ptr_c->get_device_index()<<endl;
-  cout<<"array_B `_object_address:"<<ptr_b->meta().get_object_data_addr()<<endl;
-  cout<<"array_C `_device:"<<ptr_c->get_device()<<endl;
-  cout<<"array_C `_device_index:"<<ptr_c->get_device_index()<<endl;
-  cout<<"array_C `_object_address:"<<ptr_c->meta().get_object_data_addr()<<endl;
+  // cout<<"firstly output......"<<endl;
+  // cout<<"array_A_device:"<<ptr_a->get_device()<<endl;
+  // cout<<"array_A_device_index:"<<ptr_a->get_device_index()<<endl;
+  // cout<<"array_A_object_id:"<<ptr_a->meta().get_object_id()<<endl;
+  // cout<<"array_A_ds_id:"<<ptr_a->meta().get_ds_id()<<endl;
+  // cout<<"array_B_device:"<<ptr_b->get_device()<<endl;
+  // cout<<"array_B_device_index:"<<ptr_c->get_device_index()<<endl;
+  // cout<<"array_B_object_id:"<<ptr_b->meta().get_object_id()<<endl;
+  // cout<<"array_C_device:"<<ptr_c->get_device()<<endl;
+  // cout<<"array_C_device_index:"<<ptr_c->get_device_index()<<endl;
+  // cout<<"array_C_object_id:"<<ptr_c->meta().get_object_id()<<endl<<endl;
 
   gen_random_array(kNumEntries, raw_array_A);
   gen_random_array(kNumEntries, raw_array_B);
-  for (uint64_t i = 0; i < 10; i++) {
-    GenericUniquePtr* ptr_a = &array_A.ptrs_[i];
-    cout<<"array_A `_device" <<i<<" : "<<ptr_a->get_device()<<endl;
-    cout<<"array_A `_device_index" <<i<<" : "<<ptr_a->get_device_index()<<endl;
-    cout<<"array_A `_object_address" <<i<<" : "<<ptr_a->meta().get_object_data_addr()<<endl;
-    cout<<"array_A["<<i<<"]:"<<raw_array_A[i]<<endl;
-  }
+  // for (uint64_t i = 0; i < kNumEntries; i=i+(1ULL << 10)) {
+  //   GenericUniquePtr* ptr_a = &array_A.ptrs_[i];
+  //   cout<<"array_A_device" <<i<<" : "<<ptr_a->get_device()<<endl;
+  //   cout<<"array_A_device_index" <<i<<" : "<<ptr_a->get_device_index()<<endl;
+  //   cout<<"the Array_A ["<<i<<"] is local? ::: "<<ptr_a->meta().is_present()<<endl;
+  //   // cout<<"array_A_object_address" <<i<<" : "<<ptr_a->meta().get_object_addr()<<endl;
+  //   // cout<<"array_A_object_data_address" <<i<<" : "<<ptr_a->meta().get_object_data_addr()<<endl;
+  //   // cout<<"array_A_object_id" <<i<<" : "<<ptr_a->meta().get_object_id()<<endl;
+  //   // cout<<"array_A_ds_id" <<i<<" : "<<ptr_a->meta().object().get_ds_id()<<endl;
+  //   // cout<<"array_A["<<i<<"]:"<<raw_array_A[i]<<endl;
+  // }
 
 
   copy_array(&array_A, raw_array_A);
   copy_array(&array_B, raw_array_B);
   add_array(&array_C, &array_A, &array_B);
+  for (uint64_t i = 0; i < kNumEntries; i=i+(1ULL << 10)) {
+    DerefScope scope;
+    GenericUniquePtr* ptr_c = &array_C.ptrs_[i];
+    cout<<"array_C_device" <<i<<" : "<<ptr_c->get_device()<<endl;
+    cout<<"array_C_device_index" <<i<<" : "<<ptr_c->get_device_index()<<endl;
+    cout<<"the Array_C ["<<i<<"] is local? ::: "<<ptr_c->meta().is_present()<<endl;
+    if(ptr_c->meta().is_present()==1){
+      cout<<"array_C_object_id" <<i<<" : "<<ptr_c->meta().get_object_id()<<endl;
+      cout<<"array_C_ds_id" <<i<<" : "<<ptr_c->meta().object().get_ds_id()<<endl;
+    }
+    // cout<<"array_C_object_address" <<i<<" : "<<ptr_c->meta().get_object_addr()<<endl;
+    // cout<<"array_C_object_data_address" <<i<<" : "<<ptr_c->meta().get_object_data_addr()<<endl;
+    
+    // cout<<"array_C["<<i<<"]:"<<array_C.at(scope,i)<<endl;
+  }
 
   for (uint64_t i = 0; i < kNumEntries; i++) {
     DerefScope scope;
