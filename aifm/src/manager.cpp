@@ -410,7 +410,7 @@ void FarMemManager::swap_out(GenericFarMemPtr *ptr, Object obj) {
   auto obj_size = obj.size();
   auto ds_id = obj.get_ds_id();
   auto data_ptr = reinterpret_cast<const uint8_t *>(obj.get_data_addr());
-  std::cout<<"debug....... the swapping_in object'd ds_id is null or not!!!!!!!!!!!!!!!!!!!!!!!!!"<<ds_id<<" .."<<obj_id<<std::endl;
+  // std::cout<<"debug....... the swapping_in object'd ds_id is null or not!!!!!!!!!!!!!!!!!!!!!!!!!"<<ds_id<<" .."<<obj_id<<std::endl;
   // 
   auto write_object_fn = [&](uint32_t data_len) {
     if (dirty) {

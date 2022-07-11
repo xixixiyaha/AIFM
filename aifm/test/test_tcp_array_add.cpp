@@ -96,21 +96,40 @@ void do_work(FarMemManager *manager) {
   copy_array(&array_A, raw_array_A);
   copy_array(&array_B, raw_array_B);
   add_array(&array_C, &array_A, &array_B);
-  for (uint64_t i = 0; i < kNumEntries; i=i+(1ULL << 10)) {
+
+  uint64_t obj_id;
+  uint8_t ds_id;
+  // uint16_t obj_data_len;
+  // auto obj_id_len = sizeof(obj_id);
+  for (uint64_t i = 0; i < kNumEntries; i++) {
     DerefScope scope;
     GenericUniquePtr* ptr_c = &array_C.ptrs_[i];
-    cout<<"array_C_device" <<i<<" : "<<ptr_c->get_device()<<endl;
-    cout<<"array_C_device_index" <<i<<" : "<<ptr_c->get_device_index()<<endl;
-    cout<<"the Array_C ["<<i<<"] is local? ::: "<<ptr_c->meta().is_present()<<endl;
-    if(ptr_c->meta().is_present()==1){
-      cout<<"array_C_object_id" <<i<<" : "<<ptr_c->meta().get_object_id()<<endl;
-      cout<<"array_C_ds_id" <<i<<" : "<<ptr_c->meta().object().get_ds_id()<<endl;
+    obj_id = ptr_c->meta().get_object_id();
+    ds_id = ptr_c->meta().get_ds_id();
+    auto data = array_C.at(scope,i);
+    if(ptr_c->get_device_index()==1){
+      cout<<"array_C_object_id[" <<i<<"] : "<<obj_id<<endl;
+      cout<<"array_C_ds_id[" <<i<<"] : "<<ds_id<<endl;
+      cout<<"array_C_data[" <<i<<"] : "<<data<<endl;
     }
-    // cout<<"array_C_object_address" <<i<<" : "<<ptr_c->meta().get_object_addr()<<endl;
-    // cout<<"array_C_object_data_address" <<i<<" : "<<ptr_c->meta().get_object_data_addr()<<endl;
     
-    // cout<<"array_C["<<i<<"]:"<<array_C.at(scope,i)<<endl;
   }
+ 
+  // for (uint64_t i = 0; i < kNumEntries; i=i+(1ULL << 10)) {
+  //   DerefScope scope;
+  //   GenericUniquePtr* ptr_c = &array_C.ptrs_[i];
+  //   cout<<"array_C_device" <<i<<" : "<<ptr_c->get_device()<<endl;
+  //   cout<<"array_C_device_index" <<i<<" : "<<ptr_c->get_device_index()<<endl;
+  //   cout<<"the Array_C ["<<i<<"] is local? ::: "<<ptr_c->meta().is_present()<<endl;
+  //   if(ptr_c->meta().is_present()==1){
+  //     cout<<"array_C_object_id" <<i<<" : "<<ptr_c->meta().get_object_id()<<endl;
+  //     cout<<"array_C_ds_id" <<i<<" : "<<ptr_c->meta().object().get_ds_id()<<endl;
+  //   }
+  //   // cout<<"array_C_object_address" <<i<<" : "<<ptr_c->meta().get_object_addr()<<endl;
+  //   // cout<<"array_C_object_data_address" <<i<<" : "<<ptr_c->meta().get_object_data_addr()<<endl;
+    
+  //   // cout<<"array_C["<<i<<"]:"<<array_C.at(scope,i)<<endl;
+  // }
 
   for (uint64_t i = 0; i < kNumEntries; i++) {
     DerefScope scope;
