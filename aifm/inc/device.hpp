@@ -120,4 +120,51 @@ public:
                uint8_t *output_buf);
 };
 
+class RDMADevice : public FarMemDevice {
+private:
+  constexpr static uint32_t		kPrefetchWinSize = 1 << 20;
+  RDMAManager				manager_;
+  SharedPool<tcpconn_t *>		shared_pool_;
+  std::map<uint8_t, struct mr_data_t>	remote_mrs;
+  /*std::map<uint8_t, std::map<uint64_t, uint16_t>>	object_lens;*/
+  /*SharedPool<struct mr_local_t *>	mr_pool_;*/
+  struct ibv_mr				*local_mr = NULL;
+  struct ibv_mr				*data_len_mr[helpers::kNumCPUs];
+  uint8_t				*local_buf = NULL;
+  RDMAServer				server_;
+
+public:
+  constexpr static uint32_t kOpcodeSize = 1;
+  constexpr static uint32_t kPortSize = 2;
+  constexpr static uint32_t kLargeDataSize = 512;
+  constexpr static uint32_t kMaxComputeDataLen = 65535;
+
+  constexpr static uint8_t kOpInit = 0;
+  constexpr static uint8_t kOpShutdown = 1;
+  constexpr static uint8_t kOpReadObject = 2;
+  constexpr static uint8_t kOpWriteObject = 3;
+  constexpr static uint8_t kOpRemoveObject = 4;
+  constexpr static uint8_t kOpConstruct = 5;
+  constexpr static uint8_t kOpDeconstruct = 6;
+  constexpr static uint8_t kOpCompute = 7;
+  
+  RDMADevice(netaddr raddr, uint32_t num_connections, uint64_t far_mem_size);
+  ~RDMADevice();
+  void read_object(uint8_t ds_id, uint8_t obj_id_len, const uint8_t *obj_id,
+                   uint16_t *data_len, uint8_t *data_buf);
+  void write_object(uint8_t ds_id, uint8_t obj_id_len, const uint8_t *obj_id,
+                    uint16_t data_len, const uint8_t *data_buf);
+  bool remove_object(uint64_t ds_id, uint8_t obj_id_len, const uint8_t *obj_id);
+  void _construct(tcpconn_t *remote_slave, uint8_t ds_type, uint8_t ds_id,
+                  uint8_t param_len, uint8_t *params);
+  void _destruct(tcpconn_t *remote_slave, uint8_t ds_id);
+  void construct(uint8_t ds_type, uint8_t ds_id, uint8_t param_len,
+                 uint8_t *params);
+  void destruct(uint8_t ds_id);
+  void compute(uint8_t ds_id, uint8_t opcode, uint16_t input_len,
+               const uint8_t *input_buf, uint16_t *output_len,
+               uint8_t *output_buf);
+  virtual void reg_local_cache(uint8_t* cache, uint64_t len) override;
+};
+
 } // namespace far_memory
